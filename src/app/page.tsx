@@ -3,9 +3,12 @@
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const { items, itemCount, total, addItem, removeItem, clearCart } = useCart();
+  const [loading, setLoading] = useState(false);
 
   // Mock product for testing
   const mockProduct = {
@@ -23,12 +26,47 @@ export default function Home() {
     updated_at: new Date().toISOString(),
   };
 
+  // Test Stripe payment intent creation
+  const testStripeCheckout = async () => {
+    if (total === 0) {
+      toast.error("Add items to cart first!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          currency: "gbp",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.clientSecret) {
+        toast.success("✅ Stripe Payment Intent Created!");
+        console.log("Payment Intent ID:", data.paymentIntentId);
+        console.log("Client Secret:", data.clientSecret);
+      } else {
+        toast.error("Failed to create payment intent");
+      }
+    } catch (error) {
+      console.error("Stripe test error:", error);
+      toast.error("Error testing Stripe");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h1 className="font-display text-6xl">TUSH</h1>
-          <p className="text-muted-foreground text-lg">Cart Store Test</p>
+          <p className="text-muted-foreground text-lg">Cart & Stripe Test</p>
         </div>
 
         {/* Cart Summary */}
@@ -41,7 +79,7 @@ export default function Home() {
         </div>
 
         {/* Test Buttons */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <Button
             onClick={() => addItem(mockProduct)}
             variant="default"
@@ -54,6 +92,14 @@ export default function Home() {
             variant="destructive"
           >
             Clear Cart
+          </Button>
+
+          <Button
+            onClick={testStripeCheckout}
+            disabled={loading || total === 0}
+            className="bg-tush-yellow text-black hover:opacity-90"
+          >
+            {loading ? "Testing..." : "💳 Test Stripe Checkout"}
           </Button>
         </div>
 
