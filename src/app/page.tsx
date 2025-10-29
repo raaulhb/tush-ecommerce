@@ -1,70 +1,99 @@
+"use client";
+
+import { useCart } from "@/hooks/use-cart";
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/utils";
+
 export default function Home() {
+  const { items, itemCount, total, addItem, removeItem, clearCart } = useCart();
+
+  // Mock product for testing
+  const mockProduct = {
+    id: "test-1",
+    name: "TUSH Sanitizing Spray",
+    slug: "tush-spray",
+    description: "Test product",
+    price: 9.99,
+    stock_quantity: 100,
+    images: [],
+    category: "spray",
+    featured: true,
+    active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
   return (
     <main className="min-h-screen bg-background p-8">
-      {/* Test Container */}
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header with Custom Font */}
         <div className="text-center space-y-4">
           <h1 className="font-display text-6xl">TUSH</h1>
-          <p className="text-muted-foreground text-lg">
-            Testing Tailwind & Brand Colors
-          </p>
+          <p className="text-muted-foreground text-lg">Cart Store Test</p>
         </div>
 
-        {/* Color Swatches - TUSH Brand */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-primary text-primary-foreground p-8 rounded-lg text-center">
-            <p className="font-bold text-xl">Primary Blue</p>
-            <p className="text-sm mt-2">#5e89e9</p>
-          </div>
-
-          <div className="bg-secondary text-secondary-foreground p-8 rounded-lg text-center">
-            <p className="font-bold text-xl">Secondary Yellow</p>
-            <p className="text-sm mt-2">#f9ff7b</p>
+        {/* Cart Summary */}
+        <div className="bg-primary text-primary-foreground p-6 rounded-lg">
+          <h2 className="font-display text-2xl mb-4">Cart Summary</h2>
+          <div className="space-y-2">
+            <p>Items: {itemCount}</p>
+            <p className="text-2xl font-bold">Total: {formatPrice(total)}</p>
           </div>
         </div>
 
-        {/* Direct TUSH colors */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-tush-blue text-white p-8 rounded-lg text-center">
-            <p className="font-bold text-xl">TUSH Blue (Direct)</p>
-            <p className="text-sm mt-2">Custom color</p>
-          </div>
+        {/* Test Buttons */}
+        <div className="flex gap-4">
+          <Button
+            onClick={() => addItem(mockProduct)}
+            variant="default"
+          >
+            Add Test Product
+          </Button>
 
-          <div className="bg-tush-yellow text-black p-8 rounded-lg text-center">
-            <p className="font-bold text-xl">TUSH Yellow (Direct)</p>
-            <p className="text-sm mt-2">Custom color</p>
-          </div>
+          <Button
+            onClick={() => clearCart()}
+            variant="destructive"
+          >
+            Clear Cart
+          </Button>
         </div>
 
-        {/* Test Tailwind Utilities */}
-        <div className="border border-border rounded-lg p-6 space-y-4">
-          <h2 className="font-display text-2xl">Tailwind Utilities Test</h2>
+        {/* Cart Items Display */}
+        <div className="border rounded-lg p-6 space-y-4">
+          <h3 className="font-display text-xl">Cart Items:</h3>
 
-          <div className="flex gap-4">
-            <button className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:opacity-90 transition-opacity">
-              Primary Button
-            </button>
-
-            <button className="bg-secondary text-secondary-foreground px-6 py-2 rounded-md hover:opacity-90 transition-opacity">
-              Secondary Button
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 text-sm">
-            <div className="bg-card p-3 rounded border">Card</div>
-            <div className="bg-muted p-3 rounded">Muted</div>
-            <div className="bg-accent p-3 rounded">Accent</div>
-          </div>
-        </div>
-
-        {/* Spacing & Typography Test */}
-        <div className="space-y-2">
-          <h1 className="font-display text-5xl">Heading 1</h1>
-          <h2 className="font-display text-4xl">Heading 2</h2>
-          <h3 className="font-display text-3xl">Heading 3</h3>
-          <p className="text-base">Regular paragraph text using Inter font</p>
-          <p className="text-sm text-muted-foreground">Small muted text</p>
+          {items.length === 0 ? (
+            <p className="text-muted-foreground">Cart is empty</p>
+          ) : (
+            <div className="space-y-3">
+              {items.map((item) => (
+                <div
+                  key={item.product.id}
+                  className="flex justify-between items-center p-4 bg-muted rounded"
+                >
+                  <div>
+                    <p className="font-bold">{item.product.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Quantity: {item.quantity}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p className="font-bold">
+                      {formatPrice(Number(item.product.price) * item.quantity)}
+                    </p>
+                    <Button
+                      onClick={() =>
+                        removeItem(item.product.id, item.product.name)
+                      }
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>
