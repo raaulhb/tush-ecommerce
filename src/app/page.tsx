@@ -1,10 +1,18 @@
-export default function Home() {
+/**
+ * Home Page
+ * Main landing page for TUSH e-commerce
+ */
+
+import { HeroSection } from "@/components/home/hero-section";
+import { FeaturedProducts } from "@/components/home/featured-products";
+import { AboutPreview } from "@/components/home/about-preview";
+
+export default function HomePage() {
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="font-display text-6xl text-center">Welcome to tush</h1>
-      <p className="text-center text-muted-foreground mt-4">
-        Header and Footer test - check navigation!
-      </p>
-    </div>
+    <>
+      <HeroSection />
+      <FeaturedProducts />
+      <AboutPreview />
+    </>
   );
 }

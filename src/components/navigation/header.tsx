@@ -10,7 +10,7 @@ import Image from "next/image";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -23,6 +23,13 @@ const navigation = [
 export function Header() {
   const { itemCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Fix hydration error: only show cart count after mount
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -70,7 +77,8 @@ export function Header() {
                 aria-label="Shopping cart"
               >
                 <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
+                {/* Only render count after component is mounted */}
+                {mounted && itemCount > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                     {itemCount}
                   </span>
